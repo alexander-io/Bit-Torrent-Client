@@ -35,6 +35,7 @@ output_filename     = None # The name of the file we'll write to the filesystem
 total_bytes_gotten  = 0 # Total number of bytes received towards the full file so far
 done                = False # Are we done yet?
 torrent_url         = ''
+announce_url        = ''
 
 
 def main():
@@ -178,9 +179,17 @@ def get_data_from_torrent(arg):
         piece_length = decoded_dict['info']['piece length']
         number_of_pieces = total_length/piece_length
         # print('\n\ntotal length : ', total_length)
+
+
+        announce_url = decoded_dict['announce']
+        output_filename = decoded_dict['info']['name']
+
         print('total length : ', total_length)
         print('piece length : ', piece_length)
         print('number of pieces :', number_of_pieces)
+        print('announce url :', announce_url)
+        print('output file name : ', output_filename)
+
         # piece_length = decoded_dict['info'].piece_length
         # number_of_pieces = total_length/piece_length
 
@@ -201,13 +210,13 @@ def report_torrent(btdata):
 
     # Declare necessary globals
     dummy_value = "DUMMY VALUE"
-    print("Announce URL: {0}".format(dummy_value))
-    print("Name: {0}".format(dummy_value))
+    print("Announce URL: {0}".format(announce_url))
+    print("Name: {0}".format(output_filename))
     try:
         print("Includes {0} files".format(dummy_value))
     except:
         print("Includes one file")
-    print("Piece length: {0}".format(dummy_value))
+    print("Piece length: {0}".format(piece_length))
     print("Piece len (bytes): {0}".format(dummy_value))
     print("Total length: {0} ({1} bytes)".format(dummy_value, dummy_value))
     print("Number of pieces: {0}".format(dummy_value))
