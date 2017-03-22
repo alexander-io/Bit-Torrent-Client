@@ -142,18 +142,17 @@ def get_data_from_torrent(arg):
     for x,y in btdata.items():
         # print(x,y)
         x = x.decode('UTF-8')
+        # try to decode the value associated with the key...
         try:
             y = y.decode('UTF-8')
         except AttributeError:
+            # if we can't decode the value, just pass it for now
             pass
         decoded_dict[x] = y
-
 
     # decode the array elements that exist as the value for the 'url-list' key in the decoded_dict
     for x, member in enumerate(decoded_dict['url-list']):
         decoded_dict['url-list'][x] = decoded_dict['url-list'][x].decode('UTF-8')
-        # XXX test print XXX
-        # print(decoded_dict['url-list'][x])
 
     # decode the array elements that exist as the value for the 'announce-list' key in the decoded_dict
     # this has another layer of complexity compared to decoding the elements in the 'url-list', this is
@@ -161,8 +160,6 @@ def get_data_from_torrent(arg):
     for x, member in enumerate(decoded_dict['announce-list']):
         for y, member in enumerate(decoded_dict['announce-list'][x]):
             decoded_dict['announce-list'][x][y] = decoded_dict['announce-list'][x][y].decode('UTF-8')
-            # XXX test print XXX
-            # print(decoded_dict['announce-list'][x][y])
 
     # decode the (sub)ordered-dictionary that exists as a value corresponding to the 'info' key inside the decoded_dict dictionary
     # access this (sub)ordered-dictionary with : decoded_dict['info']
@@ -170,12 +167,13 @@ def get_data_from_torrent(arg):
     appendage_dict = {}
     for x, y in decoded_dict['info'].items():
         x = x.decode('UTF-8')
+        # try to decode the value associated with the key...
         try:
             # we don't want to decode the value at the pieces key... this is a byte string
             if x != 'pieces':
                 y = y.decode('UTF-8')
-
         except AttributeError:
+            # if we can't decode the value, just pass it for now
             pass
         # append the key:value pair to the dictionary
         appendage_dict[x] = y
@@ -194,27 +192,9 @@ def get_data_from_torrent(arg):
     # empty binary sequences (b'') that can later be appended
     # to. There may be other values you want to initialize here.
 
-    # assign globals :
-    # total_length = decoded_dict['info']['length']
-    # piece_length = decoded_dict['info']['piece length']
-
-    # calc byte length of piece
-    # piece_length_bytes = piece_length/8
-
-    # total_length_bytes = total_length/8
-
-    # The number of pieces is thus determined by 'ceil( total length / piece size )'
-    # no_of_pieces = math.ceil(total_length/piece_length)
-    # math.ceil(decoded_dict['info']['length']/decoded_dict['info']['piece length'])
-    # unpack('%nn', decoded_dict['info']['pieces'])
-
-    # announce_url = decoded_dict['announce']
-    # output_filename = decoded_dict['info']['name']
-
-
-
-
-    # make torrent data class
+    # instantiate an object to have the TorrentData class type
+    # assign all of the key:value pairs to correspond to the relevant bit_torrent data
+    # note : the number of pieces is thus determined by 'ceil( total length / piece size )'
     torrent_data = TorrentData(\
         decoded_dict['info']['name'],\
         decoded_dict['info']['length'],\
@@ -223,19 +203,6 @@ def get_data_from_torrent(arg):
         decoded_dict['info']['piece length']/8,\
         math.ceil(decoded_dict['info']['length']/decoded_dict['info']['piece length']),\
         decoded_dict['announce'])
-    # def __init__(self, output_filename, total_length, total_length_bytes, piece_length, piece_length_bytes, no_of_pieces, announce_url):
-    # torrent_data.output_filename
-    # torrent_data.total_length
-    # torrent_data.total_length_bytes
-    # torrent_data.piece_length
-    # torrent_data.piece_length_bytes
-    # torrent_data.no_of_pieces
-    # torrent_data.announce_url
-    # torrent_data.output_filename = decoded_dict['info']['name']
-
-
-    # (self, name, total_length, total_length_bytes, piece_length, piece_length_bytes, no_of_pieces, announce_url):
-
 
     #  XXX print XXX
     # print('total length : ', total_length)
@@ -266,9 +233,6 @@ def get_data_from_torrent(arg):
 def report_torrent(torrent_data):
     # Nothing special here, just reporting the data from
     # the torrent. Note the Python 3 format syntax
-
-
-
     # XXX Declare necessary globals XXX
     dummy_value = "DUMMY VALUE"
 
