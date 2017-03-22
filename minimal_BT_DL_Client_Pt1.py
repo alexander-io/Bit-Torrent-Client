@@ -1,3 +1,9 @@
+# XXX SOURCES :
+# https://wiki.theory.org/BitTorrentSpecification#Tracker_HTTP.2FHTTPS_Protocol
+# https://github.com/eweast/BencodePy
+# https://docs.python.org/3/library/hashlib.html
+# http://mathcs.pugetsound.edu/~tmullen/classes/s17-CS325-nw/
+
 # XXX QUESTIONS — for professor mullen
 # how can we determine the number of files in a given torrent based on the test.torrent meta-info?
 
@@ -10,7 +16,6 @@
 # For this operation, should we take the OrderedDict containing the byte literals (notated with b'')?
     #  OR
 # should we instead re-encode the decoded OrderedDictionary to to generate the info_hash?
-
 
 # from bencodepy import * # bencoding library. If this isn't found by default,
 # install it with 'pip install bencodepy'
@@ -57,11 +62,17 @@ def main():
     if (len(sys.argv)==2):
         bt_data     = get_data_from_torrent(sys.argv[1])
         info_hash   = get_info_hash(bt_data)
+    #  XXX vvv temporary comments below vvv XXX
     #     tracker_req(bt_data, info_hash)
     # else:
     #     print('incorrect number of arguments')
 
+
+# define a TorrentData object type
+# the purpose of this class is to store data corresponding to the
+# meta-data that's extracted from the .torrent file in an organized way
 class TorrentData:
+    # class constructor
     def __init__(self, output_filename, total_length, total_length_bytes, piece_length, piece_length_bytes, no_of_pieces, announce_url):
         self.output_filename = output_filename
         self.total_length = total_length
@@ -71,10 +82,6 @@ class TorrentData:
         self.no_of_pieces = no_of_pieces
         self.announce_url = announce_url
 
-
-        # print('made a torrent data')
-
-
 class PeerConnection:
     """A class representing the connection to a peer"""
     def __init__(self, ip, port):
@@ -82,7 +89,6 @@ class PeerConnection:
         self.port = port
 
 def tracker_req(btdata, info_hash):
-    # Declare any necessary globals
 
     # Build the params object. Read the bittorrent specs for
     # tracker querying.
@@ -92,8 +98,6 @@ def tracker_req(btdata, info_hash):
 
     # use the requests library to send an HTTP GET request to
     # the tracker
-    # res = requests.get('http://mononoke.io')# http://docs.python-requests.org/en/master/
-    # response = requests.get('https://www.instagram.com/codinblog/')
     response = requests.get('http://www.something.com')
 
     print('response text :', response.text)
@@ -137,14 +141,11 @@ def get_info_hash(btdata):
     return # the info hash digest
 
 def get_data_from_torrent(arg):
-    # Declare any necessary globals
-
-    # XXX uncomment and return to original try/except structure XXX
+    # try to parse and decode the torrent file...
     try:
         # Read about decoding from a file here:
         # https://github.com/eweast/BencodePy
-
-        # file_path = arg
+        # assign file_path based on the command line arg/param
         file_path = arg
 
         # call the decode_from_file() function that's a member of the bencodepy class`
@@ -236,12 +237,10 @@ def get_data_from_torrent(arg):
         # reporting torrent :
         report_torrent(torrent_data)
 
-    # XXX uncomment and return to original try/except structure XXX
     except:
         print('Failed to parse input. Usage: python btClient.py torrent_file"\ntorrent_file must be a .torrent file')
         sys.exit(2)
 
-    # return decoded_dict
     return decoded_dict
 
 
@@ -251,7 +250,8 @@ def get_data_from_torrent(arg):
 def report_torrent(torrent_data):
     # Nothing special here, just reporting the data from
     # the torrent. Note the Python 3 format syntax
-    # XXX Declare necessary globals XXX
+
+    # XXX remove when finished XXX
     dummy_value = "DUMMY VALUE"
 
     print("\nAnnounce URL: {0}".format(torrent_data.announce_url))
