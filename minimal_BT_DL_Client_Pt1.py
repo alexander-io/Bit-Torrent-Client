@@ -1,3 +1,17 @@
+# XXX QUESTIONS — for professor mullen
+# how can we determine the number of files in a given torrent based on the test.torrent meta-info?
+
+# You state that we must manipulate the OrderedDict to produce the info_hash :
+# """
+# You'll need to get the info directory, re-encode it
+# into bencode, then encrypt it with SHA1 using the
+# hashlib library and generate a digest.
+# """
+# For this operation, should we take the OrderedDict containing the byte literals (notated with b'')?
+    #  OR
+# should we instead re-encode the decoded OrderedDictionary to to generate the info_hash?
+
+
 # from bencodepy import * # bencoding library. If this isn't found by default,
 # install it with 'pip install bencodepy'
 import bencodepy
@@ -11,8 +25,6 @@ import math         # you'll need to use the ceil function in a few places
 import sys
 import re
 from string import ascii_letters, digits
-
-
 
 ALPHANUM    = ascii_letters + digits
 INTERESTED  = b'\x00\x00\x00\x01\x02'
@@ -120,7 +132,7 @@ def get_info_hash(btdata):
     print('\nTODO :  re-encode to bencode, encrypt data using SHA1 (use hashlib to generate digest)')
     btdata['info'] = bencodepy.encode(btdata['info'])
     # print('re-encoded : ', btdata['info'])
-    
+
     # TODO :
     return # the info hash digest
 
@@ -187,7 +199,7 @@ def get_data_from_torrent(arg):
         decoded_dict['info'] = appendage_dict
 
         # XXX test print XXX
-        # print(decoded_dict)
+        print(decoded_dict)
         # XXX test print XXX
 
         # Do what you need to do with the torrent data.
@@ -242,7 +254,7 @@ def report_torrent(torrent_data):
     # XXX Declare necessary globals XXX
     dummy_value = "DUMMY VALUE"
 
-    print("Announce URL: {0}".format(torrent_data.announce_url))
+    print("\nAnnounce URL: {0}".format(torrent_data.announce_url))
     print("Name: {0}".format(torrent_data.output_filename))
     try:
         print("Includes {0} files".format(dummy_value))
