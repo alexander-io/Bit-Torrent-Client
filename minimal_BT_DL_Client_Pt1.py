@@ -90,22 +90,18 @@ class PeerConnection:
 
 def tracker_req(btdata, info_hash):
 
-    # Build the params object. Read the bittorrent specs for
-    # tracker querying.
+    # Build the params object. Read the bittorrent specs for tracker querying.
     # The parameters are then added to this URL, using standard CGI methods (i.e. a '?' after the announce URL, followed by 'param=value' sequences separated by '&').
     # https://wiki.theory.org/BitTorrentSpecification#Tracker_HTTP.2FHTTPS_Protocol
     reqParams = {} #
 
-    # use the requests library to send an HTTP GET request to
-    # the tracker
+    # use the requests library to send an HTTP GET request to the tracker
     response = requests.get('http://www.something.com')
 
     print('response text :', response.text)
     print('response :', dir(response))
     print('response content :', response.content)
 
-    # ben_decoded_response_content = bencodepy.decode(response.content)
-    # print(ben_decoded_response_content)
 
     # The tracker responds with "text/plain" document consisting of a
     # bencoded dictionary
@@ -122,6 +118,8 @@ def tracker_req(btdata, info_hash):
     # for p in # the array of peers you got from the tracekr
     #     peer_connections.append(PeerConnection(#
 
+# the purpose of this is to produce the info_hash variable, which is requisite in the
+# request for the tracker server
 def get_info_hash(btdata):
     # https://docs.python.org/3/library/hashlib.html
     # print('get_info_hash() btdata : ', btdata)
@@ -135,6 +133,8 @@ def get_info_hash(btdata):
 
     print('\nTODO :  re-encode to bencode, encrypt data using SHA1 (use hashlib to generate digest)')
     btdata['info'] = bencodepy.encode(btdata['info'])
+
+    # XXX test print XXX
     # print('re-encoded : ', btdata['info'])
 
     # TODO :
@@ -265,9 +265,10 @@ def report_torrent(torrent_data):
     print("Total length: {0} ({1} bytes)".format(torrent_data.total_length, torrent_data.total_length_bytes))
     print("Number of pieces: {0}".format(torrent_data.no_of_pieces))
 
+
 def report_tracker(trackdata):
-    print('something')
-#     # for p in # peer array returned by tracker
-#     #     print ("Peer: {0} (ip addr: {1})".format(#
+    print('test print')
+    # for p in # peer array returned by tracker
+    #     print ("Peer: {0} (ip addr: {1})".format(#
 if __name__=="__main__":
     main()
