@@ -34,6 +34,7 @@ req_block_size_hex  = int(req_block_size_int).to_bytes(4, byteorder='big', signe
 last_block_size_int = None # The size of the last block of the file
 output_filename     = None # The name of the file we'll write to the filesystem
 total_bytes_gotten  = 0 # Total number of bytes received towards the full file so far
+total_length_bytes  = 0
 done                = False # Are we done yet?
 torrent_url         = ''
 announce_url        = ''
@@ -43,10 +44,23 @@ def main():
     global done
     if (len(sys.argv)==2):
         bt_data     = get_data_from_torrent(sys.argv[1])
-    #     info_hash   = get_info_hash(bt_data)
+        info_hash   = get_info_hash(bt_data)
     #     tracker_req(bt_data, info_hash)
     # else:
     #     print('incorrect number of arguments')
+
+class TorrentData:
+    def __init__(self, output_filename, total_length, total_length_bytes, piece_length, piece_length_bytes, no_of_pieces, announce_url):
+        self.output_filename = output_filename
+        self.total_length = total_length
+        self.total_length_bytes = total_length_bytes
+        self.piece_length = piece_length
+        self.piece_length_bytes = piece_length_bytes
+        self.no_of_pieces = no_of_pieces
+        self.announce_url = announce_url
+
+
+        # print('made a torrent data')
 
 
 class PeerConnection:
@@ -101,11 +115,14 @@ def get_info_hash(btdata):
     # You'll need to get the info directory, re-encode it
     # into bencode, then encrypt it with SHA1 using the
     # hashlib library and generate a digest.
+    btdata['info'] = bencodepy.encode(btdata['info'])
+    print('re-encoded : ', btdata['info'])
     return # the info hash digest
 
 def get_data_from_torrent(arg):
     # Declare any necessary globals
 
+    # XXX uncomment and return to original try/except structure XXX
     # try:
     # Read about decoding from a file here:
     # https://github.com/eweast/BencodePy
@@ -177,67 +194,94 @@ def get_data_from_torrent(arg):
     # empty binary sequences (b'') that can later be appended
     # to. There may be other values you want to initialize here.
 
-    total_length = decoded_dict['info']['length']
-    piece_length = decoded_dict['info']['piece length']
-    piece_length_bytes = piece_length/8
-    # The number of pieces is thus determined by 'ceil( total length / piece size )'
-    number_of_pieces = math.ceil(total_length/piece_length)
-    # print('\n\ntotal length : ', total_length)
+    # assign globals :
+    # total_length = decoded_dict['info']['length']
+    # piece_length = decoded_dict['info']['piece length']
 
+    # calc byte length of piece
+    # piece_length_bytes = piece_length/8
+
+    # total_length_bytes = total_length/8
+
+    # The number of pieces is thus determined by 'ceil( total length / piece size )'
+    # no_of_pieces = math.ceil(total_length/piece_length)
+    # math.ceil(decoded_dict['info']['length']/decoded_dict['info']['piece length'])
     # unpack('%nn', decoded_dict['info']['pieces'])
 
+    # announce_url = decoded_dict['announce']
+    # output_filename = decoded_dict['info']['name']
 
 
-    announce_url = decoded_dict['announce']
-    output_filename = decoded_dict['info']['name']
-
-    print('total length : ', total_length)
-    print('piece length : ', piece_length)
-    print('piece length bytes : ', piece_length_bytes)
-
-    print('number of pieces :', number_of_pieces)
-    print('announce url :', announce_url)
-    print('output file name : ', output_filename)
 
 
-    print(decoded_dict['info']['pieces'])
-    print('type :', type(decoded_dict['info']['pieces']))
+    # make torrent data class
+    torrent_data = TorrentData(\
+        decoded_dict['info']['name'],\
+        decoded_dict['info']['length'],\
+        decoded_dict['info']['length']/8,\
+        decoded_dict['info']['piece length'],\
+        decoded_dict['info']['piece length']/8,\
+        math.ceil(decoded_dict['info']['length']/decoded_dict['info']['piece length']),\
+        decoded_dict['announce'])
+    # def __init__(self, output_filename, total_length, total_length_bytes, piece_length, piece_length_bytes, no_of_pieces, announce_url):
+    # torrent_data.output_filename
+    # torrent_data.total_length
+    # torrent_data.total_length_bytes
+    # torrent_data.piece_length
+    # torrent_data.piece_length_bytes
+    # torrent_data.no_of_pieces
+    # torrent_data.announce_url
+    # torrent_data.output_filename = decoded_dict['info']['name']
 
-    # b = decoded_dict['info']['pieces']
 
-    # for x in decoded_dict['info']['pieces']:
-    #     print(x)
+    # (self, name, total_length, total_length_bytes, piece_length, piece_length_bytes, no_of_pieces, announce_url):
 
-    # piece_length = decoded_dict['info'].piece_length
-    # number_of_pieces = total_length/piece_length
 
-    # piece_length = 1
-    # number_of_pieces = total_length/piece_length
+    #  XXX print XXX
+    # print('total length : ', total_length)
+    # print('piece length : ', piece_length)
+    # print('piece length bytes : ', piece_length_bytes)
+    # print('number of pieces :', no_of_pieces)
+    # print('announce url :', announce_url)
+    # print('output file name : ', output_filename)
+    # XXX print pieces :
+    # print(decoded_dict['info']['pieces'])
+    # print('type :', type(decoded_dict['info']['pieces'])) # type of
 
-    # report_torrent(btdata)
+    # reporting torrent :
+    report_torrent(torrent_data)
 
+    # XXX uncomment and return to original try/except structure XXX
     # except:
     #     print('Failed to parse input. Usage: python btClient.py torrent_file"\ntorrent_file must be a .torrent file')
     #     sys.exit(2)
 
-    return btdata
+    # return btdata
+    return decoded_dict
 
-def report_torrent(btdata):
+
+# note : i modified professor mullen's original function to accept a TorrentData-type object
+# as the parameter—this is a class defined above. instead of remorting data from the global
+# variables assiciated with this program, read datas that are associated with the TorrentData object
+def report_torrent(torrent_data):
     # Nothing special here, just reporting the data from
     # the torrent. Note the Python 3 format syntax
 
-    # Declare necessary globals
+
+
+    # XXX Declare necessary globals XXX
     dummy_value = "DUMMY VALUE"
-    print("Announce URL: {0}".format(announce_url))
-    print("Name: {0}".format(output_filename))
+
+    print("Announce URL: {0}".format(torrent_data.announce_url))
+    print("Name: {0}".format(torrent_data.output_filename))
     try:
         print("Includes {0} files".format(dummy_value))
     except:
         print("Includes one file")
-    print("Piece length: {0}".format(piece_length))
-    print("Piece len (bytes): {0}".format(dummy_value))
-    print("Total length: {0} ({1} bytes)".format(dummy_value, dummy_value))
-    print("Number of pieces: {0}".format(dummy_value))
+    print("Piece length: {0}".format(torrent_data.piece_length))
+    print("Piece len (bytes): {0}".format(torrent_data.piece_length_bytes))
+    print("Total length: {0} ({1} bytes)".format(torrent_data.total_length, torrent_data.total_length_bytes))
+    print("Number of pieces: {0}".format(torrent_data.no_of_pieces))
 
 def report_tracker(trackdata):
     print('something')
