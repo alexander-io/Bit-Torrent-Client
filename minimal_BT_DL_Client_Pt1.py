@@ -26,6 +26,7 @@ peer_connections    = [] # An array of PeerConnection objects
 total_length        = 0 # Total length of the file being downlaoded
 no_of_pieces        = 0 # Number of pieces the file's divided into
 piece_length        = 0 # Size of each piece
+piece_length_bytes  = 0
 i_have              = None # A bitarray representing which pieces we have
 file_array          = [] # An array of pieces (binary sequences)
 req_block_size_int  = 16384 # Recommended size for requesting blocks of data
@@ -105,102 +106,119 @@ def get_info_hash(btdata):
 def get_data_from_torrent(arg):
     # Declare any necessary globals
 
-    try:
-        # Read about decoding from a file here:
-        # https://github.com/eweast/BencodePy
+    # try:
+    # Read about decoding from a file here:
+    # https://github.com/eweast/BencodePy
 
-        # file_path = arg
-        file_path = arg
+    # file_path = arg
+    file_path = arg
 
-        # call the decode_from_file() function that's a member of the bencodepy class`
-        btdata = bencodepy.decode_from_file(file_path)
+    # call the decode_from_file() function that's a member of the bencodepy class`
+    btdata = bencodepy.decode_from_file(file_path)
 
-        # next, build the decoded dictionary through a series of iterative statements within the btdata OrderedDict object
-        # the "builder" variable used for this we'll call decoded_dict
-        decoded_dict = {}
+    # next, build the decoded dictionary through a series of iterative statements within the btdata OrderedDict object
+    # the "builder" variable used for this we'll call decoded_dict
+    decoded_dict = {}
 
-        # for each of the key:value pairs in the OrderedDict, try to decode both the key and the value
-        # finally, append the results to the builder dictionary : decoded_dict
-        for x,y in btdata.items():
-            # print(x,y)
-            x = x.decode('UTF-8')
-            try:
-                y = y.decode('UTF-8')
-            except AttributeError:
-                pass
-            decoded_dict[x] = y
+    # for each of the key:value pairs in the OrderedDict, try to decode both the key and the value
+    # finally, append the results to the builder dictionary : decoded_dict
+    for x,y in btdata.items():
+        # print(x,y)
+        x = x.decode('UTF-8')
+        try:
+            y = y.decode('UTF-8')
+        except AttributeError:
+            pass
+        decoded_dict[x] = y
 
 
-        # decode the array elements that exist as the value for the 'url-list' key in the decoded_dict
-        for x, member in enumerate(decoded_dict['url-list']):
-            decoded_dict['url-list'][x] = decoded_dict['url-list'][x].decode('UTF-8')
-            # XXX test print XXX
-            # print(decoded_dict['url-list'][x])
-
-        # decode the array elements that exist as the value for the 'announce-list' key in the decoded_dict
-        # this has another layer of complexity compared to decoding the elements in the 'url-list', this is
-        # because some of the elements of the decoded_dict['announce-list'] are arrays themselves, need a nested loop :
-        for x, member in enumerate(decoded_dict['announce-list']):
-            for y, member in enumerate(decoded_dict['announce-list'][x]):
-                decoded_dict['announce-list'][x][y] = decoded_dict['announce-list'][x][y].decode('UTF-8')
-                # XXX test print XXX
-                # print(decoded_dict['announce-list'][x][y])
-
-        # decode the (sub)ordered-dictionary that exists as a value corresponding to the 'info' key inside the decoded_dict dictionary
-        # access this (sub)ordered-dictionary with : decoded_dict['info']
-        # use the appendage_dict={} in order to temporarily store the sub-ordered-dictionary, this will be appended to the decoded_dict at the correct 'info' key after traversal
-        appendage_dict = {}
-        for x, y in decoded_dict['info'].items():
-            x = x.decode('UTF-8')
-            try:
-                # we don't want to decode the value at the pieces key... this is a byte string
-                if x != 'pieces':
-                    y = y.decode('UTF-8')
-            except AttributeError:
-                pass
-            # append the key:value pair to the dictionary
-            appendage_dict[x] = y
-
-        # append the appendage_dict to the 'info' key of the decoded_dict dictionary, the same place where it came encoded from
-        decoded_dict['info'] = appendage_dict
-
+    # decode the array elements that exist as the value for the 'url-list' key in the decoded_dict
+    for x, member in enumerate(decoded_dict['url-list']):
+        decoded_dict['url-list'][x] = decoded_dict['url-list'][x].decode('UTF-8')
         # XXX test print XXX
-        print(decoded_dict)
+        # print(decoded_dict['url-list'][x])
 
-        # Do what you need to do with the torrent data.
-        # You'll probably want to set some globals, such as
-        # total_length, piece_length, number of pieces (you'll)
-        # need to calculate that) etc. You might want to give
-        # file_array its initial value here as an array of
-        # empty binary sequences (b'') that can later be appended
-        # to. There may be other values you want to initialize here.
+    # decode the array elements that exist as the value for the 'announce-list' key in the decoded_dict
+    # this has another layer of complexity compared to decoding the elements in the 'url-list', this is
+    # because some of the elements of the decoded_dict['announce-list'] are arrays themselves, need a nested loop :
+    for x, member in enumerate(decoded_dict['announce-list']):
+        for y, member in enumerate(decoded_dict['announce-list'][x]):
+            decoded_dict['announce-list'][x][y] = decoded_dict['announce-list'][x][y].decode('UTF-8')
+            # XXX test print XXX
+            # print(decoded_dict['announce-list'][x][y])
 
-        total_length = decoded_dict['info']['length']
-        piece_length = decoded_dict['info']['piece length']
-        number_of_pieces = total_length/piece_length
-        # print('\n\ntotal length : ', total_length)
+    # decode the (sub)ordered-dictionary that exists as a value corresponding to the 'info' key inside the decoded_dict dictionary
+    # access this (sub)ordered-dictionary with : decoded_dict['info']
+    # use the appendage_dict={} in order to temporarily store the sub-ordered-dictionary, this will be appended to the decoded_dict at the correct 'info' key after traversal
+    appendage_dict = {}
+    for x, y in decoded_dict['info'].items():
+        x = x.decode('UTF-8')
+        try:
+            # we don't want to decode the value at the pieces key... this is a byte string
+            if x != 'pieces':
+                y = y.decode('UTF-8')
+
+        except AttributeError:
+            pass
+        # append the key:value pair to the dictionary
+        appendage_dict[x] = y
+
+    # append the appendage_dict to the 'info' key of the decoded_dict dictionary, the same place where it came encoded from
+    decoded_dict['info'] = appendage_dict
+
+    # XXX test print XXX
+    print(decoded_dict)
+
+    # Do what you need to do with the torrent data.
+    # You'll probably want to set some globals, such as
+    # total_length, piece_length, number of pieces (you'll)
+    # need to calculate that) etc. You might want to give
+    # file_array its initial value here as an array of
+    # empty binary sequences (b'') that can later be appended
+    # to. There may be other values you want to initialize here.
+
+    total_length = decoded_dict['info']['length']
+    piece_length = decoded_dict['info']['piece length']
+    piece_length_bytes = piece_length/8
+    # The number of pieces is thus determined by 'ceil( total length / piece size )'
+    number_of_pieces = math.ceil(total_length/piece_length)
+    # print('\n\ntotal length : ', total_length)
+
+    # unpack('%nn', decoded_dict['info']['pieces'])
 
 
-        announce_url = decoded_dict['announce']
-        output_filename = decoded_dict['info']['name']
 
-        print('total length : ', total_length)
-        print('piece length : ', piece_length)
-        print('number of pieces :', number_of_pieces)
-        print('announce url :', announce_url)
-        print('output file name : ', output_filename)
+    announce_url = decoded_dict['announce']
+    output_filename = decoded_dict['info']['name']
 
-        # piece_length = decoded_dict['info'].piece_length
-        # number_of_pieces = total_length/piece_length
+    print('total length : ', total_length)
+    print('piece length : ', piece_length)
+    print('piece length bytes : ', piece_length_bytes)
 
-        # piece_length = 1
-        # number_of_pieces = total_length/piece_length
+    print('number of pieces :', number_of_pieces)
+    print('announce url :', announce_url)
+    print('output file name : ', output_filename)
 
-        # report_torrent(btdata)
 
-    except:
-        print('Failed to parse input. Usage: python btClient.py torrent_file"\ntorrent_file must be a .torrent file')
-        sys.exit(2)
+    print(decoded_dict['info']['pieces'])
+    print('type :', type(decoded_dict['info']['pieces']))
+
+    # b = decoded_dict['info']['pieces']
+
+    # for x in decoded_dict['info']['pieces']:
+    #     print(x)
+
+    # piece_length = decoded_dict['info'].piece_length
+    # number_of_pieces = total_length/piece_length
+
+    # piece_length = 1
+    # number_of_pieces = total_length/piece_length
+
+    # report_torrent(btdata)
+
+    # except:
+    #     print('Failed to parse input. Usage: python btClient.py torrent_file"\ntorrent_file must be a .torrent file')
+    #     sys.exit(2)
 
     return btdata
 
