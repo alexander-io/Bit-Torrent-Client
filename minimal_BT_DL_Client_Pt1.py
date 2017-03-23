@@ -65,10 +65,10 @@ def main():
     if (len(sys.argv)==2):
         bt_data     = get_data_from_torrent(sys.argv[1])
         info_hash   = get_info_hash(bt_data)
-    #  XXX vvv temporary comments below vvv XXX
-    #     tracker_req(bt_data, info_hash)
-    # else:
-    #     print('incorrect number of arguments')
+        # call tracker request
+        tracker_req(bt_data, info_hash)
+    else:
+        print('incorrect number of arguments')
 
 
 # define a TorrentData object type
@@ -138,14 +138,27 @@ def get_info_hash(btdata):
     print("\n\n::::::btdata backup  : \n\n", btdata_backup, "\n\n")
     print("\n\n::::::INFO btdata backup  : \n\n", btdata_info_backup, "\n\n")
 
-    print('\nTODO :  re-encode to bencode, encrypt data using SHA1 (use hashlib to generate digest)')
-    btdata['info'] = bencodepy.encode(btdata['info'])
+
+
 
     # XXX test print XXX
     # print('re-encoded : ', btdata['info'])
 
-    # TODO :
-    return # the info hash digest
+    # first, encode info_dictionary in bencode before encrypting using sha1
+    encoded_info_dictionary = bencodepy.encode(btdata_info_backup)
+
+    # XXX test print XXX
+    print('encoded info dictionary : ', encoded_info_dictionary)
+
+    # encrypt the encoded_info_dictionary using sha1 & generate sha1 hash digest
+    digest_builder = hashlib.sha1()
+    digest_builder.update(encoded_info_dictionary)
+    digest_builder = digest_builder.digest()
+
+    # XXX test print XXX
+    # print('digest builder : ', digest_builder,'\n\n')
+
+    return digest_builder
 
 def get_data_from_torrent(arg):
     # try to parse and decode the torrent file...
@@ -273,11 +286,13 @@ def report_torrent(torrent_data):
 
     # XXX remove when finished XXX
     dummy_value = "DUMMY VALUE"
+    # assume that the number of files in the torrent is "one"
+    no_of_files = "one"
 
     print("\nAnnounce URL: {0}".format(torrent_data.announce_url))
     print("Name: {0}".format(torrent_data.output_filename))
     try:
-        print("Includes {0} files".format(dummy_value))
+        print("Includes {0} files".format(no_of_files))
     except:
         print("Includes one file")
     print("Piece length: {0}".format(torrent_data.piece_length))
