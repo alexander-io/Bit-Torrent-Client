@@ -148,8 +148,52 @@ def tracker_req(btdata, info_hash):
 
     print('\ndecoded dict : ', decoded_dict)
 
+    appendage_dict = {}
+    # decode the array elements that exist as the value for the 'url-list' key in the decoded_dict
+    for x, member in enumerate(decoded_dict['peers']):
+        # peer_builder = {'ip':"", 'port':""}
+        peer_builder = {}
+        # print('\npeer dict : ', decoded_dict['peers'][x])
+        for i,j in decoded_dict['peers'][x].items():
+            # print(x,i,j)
+            i = i.decode('UTF-8')
+            if isinstance(j, int):
+                pass
+            elif 'peer' not in i:
+                j = j.decode('UTF-8')
+            else :
+                pass
 
-    
+            peer_builder[i] = j
+
+            print(x,i,j)
+
+        peer_connections.append(PeerConnection(peer_builder['ip'], peer_builder['port']))
+
+    print(peer_connections)
+
+            # appendage_dict[]
+            # i = i.decode('UTF-8')
+            # # try to decode the value associated with the key...
+            # try:
+            #     j = j.decode('UTF-8')
+            # except AttributeError:
+            #     # if we can't decode the value, just pass it for now
+            #     pass
+            # appendage_dict[i] = j
+            # print(decoded_dict['peers'][x][i])
+            # peer_ip = decoded_dict['peers'][x][i].decode
+            # i = i.decode('UTF-8')
+            # # try to decode the value associated with the key...
+            # try:
+            #     j = j.decode('UTF-8')
+            # except AttributeError:
+            #     # if we can't decode the value, just pass it for now
+            #     pass
+            # decoded_dict['peers'][x][i] = j
+            # print('peer dict : ', decoded_dict['peers'][x])
+        # decoded_dict['url-list'][x] = decoded_dict['url-list'][x].decode('UTF-8')
+
     # The tracker responds with "text/plain" document consisting of a
     # bencoded dictionary
 
