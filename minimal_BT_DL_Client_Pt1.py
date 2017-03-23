@@ -121,12 +121,15 @@ def tracker_req(btdata, info_hash):
     response = requests.get('http://www.something.com', params=reqParams)
     response = requests.get(btdata['announce'], params=reqParams)
 
+
     print('response : ', response)
     print('response text :', response.text)
     print('response directory :', dir(response))
     print('response content :', response.content)
 
+    decoded_response_content = bencodepy.decode(response.content)
 
+    print('\ndecoded response content', decoded_response_content)
     # The tracker responds with "text/plain" document consisting of a
     # bencoded dictionary
 
