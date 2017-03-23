@@ -129,7 +129,27 @@ def tracker_req(btdata, info_hash):
 
     decoded_response_content = bencodepy.decode(response.content)
 
-    print('\ndecoded response content', decoded_response_content)
+    print('\nbencodepy.decoded response content', decoded_response_content)
+
+    decoded_dict = {}
+
+    # for each of the key:value pairs in the OrderedDict, try to decode both the key and the value
+    # finally, append the results to the builder dictionary : decoded_dict
+    for x,y in decoded_response_content.items():
+        # print(x,y)
+        x = x.decode('UTF-8')
+        # try to decode the value associated with the key...
+        try:
+            y = y.decode('UTF-8')
+        except AttributeError:
+            # if we can't decode the value, just pass it for now
+            pass
+        decoded_dict[x] = y
+
+    print('\ndecoded dict : ', decoded_dict)
+
+
+    
     # The tracker responds with "text/plain" document consisting of a
     # bencoded dictionary
 
