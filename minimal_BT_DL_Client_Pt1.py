@@ -93,13 +93,29 @@ class PeerConnection:
 
 def tracker_req(btdata, info_hash):
 
+    # If parameters are sent to the script via an HTTP GET request (a question mark appended to the URL, followed by param=value pairs; in the example, ?and=a&query=string)
+    # example, ?and=a&query=string
+    url_builder = btdata['announce']
+    url_builder += '?'
+
+
+    # XXX test print XXX
+    # print('\n\nannounce url ::', btdata['announce'])
+
     # Build the params object. Read the bittorrent specs for tracker querying.
     # The parameters are then added to this URL, using standard CGI methods (i.e. a '?' after the announce URL, followed by 'param=value' sequences separated by '&').
     # https://wiki.theory.org/BitTorrentSpecification#Tracker_HTTP.2FHTTPS_Protocol
-    reqParams = {} #
+
+    # peer_id = urlencoded 20 byte string
+    peer_id = 'dummy_value'
+    uploaded = 0
+    # left = total_length_bytes - total_bytes_gotten
+    left = btdata['info']['length']/8 - total_bytes_gotten
+
+    reqParams = {'info_hash':info_hash, 'peer_id':peer_id, 'port': local_port, 'uploaded':uploaded, 'downloaded':total_bytes_gotten, 'left': left} #
 
     # use the requests library to send an HTTP GET request to the tracker
-    response = requests.get('http://www.something.com')
+    response = requests.get('http://www.something.com', params=reqParams)
 
     print('response text :', response.text)
     print('response :', dir(response))
@@ -115,7 +131,7 @@ def tracker_req(btdata, info_hash):
 
     # Once you've got the dictionary parsed as "tracker_data" you can
     # print out the tracker request report:
-    report_tracker(tracker_data)
+    # report_tracker(tracker_data)
 
     # And construct an array of peer connection objects:
     # for p in # the array of peers you got from the tracekr
