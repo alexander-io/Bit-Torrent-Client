@@ -88,9 +88,11 @@ class TorrentData:
 
 class PeerConnection:
     """A class representing the connection to a peer"""
-    def __init__(self, ip, port):
+    def __init__(self, ip, port, pid):
         self.ip = ip
         self.port = port
+        self.pid = pid
+        # self.id = id
 
 def tracker_req(btdata, info_hash):
 
@@ -168,7 +170,8 @@ def tracker_req(btdata, info_hash):
 
             print(x,i,j)
 
-        peer_connections.append(PeerConnection(peer_builder['ip'], peer_builder['port']))
+        # peer_connections.append(PeerConnection(peer_builder['ip'], peer_builder['port']), 'tmp-id')
+        peer_connections.append(PeerConnection(peer_builder['ip'], peer_builder['port'], peer_builder['peer id']))
 
     print(peer_connections)
 
@@ -203,7 +206,7 @@ def tracker_req(btdata, info_hash):
 
     # Once you've got the dictionary parsed as "tracker_data" you can
     # print out the tracker request report:
-    # report_tracker(tracker_data)
+    report_tracker()
 
     # And construct an array of peer connection objects:
     # for p in # the array of peers you got from the tracekr
@@ -389,9 +392,9 @@ def report_torrent(torrent_data):
     print("Number of pieces: {0}".format(torrent_data.no_of_pieces))
 
 
-def report_tracker(trackdata):
+def report_tracker():
     print('test print')
-    # for p in # peer array returned by tracker
-    #     print ("Peer: {0} (ip addr: {1})".format(#
+    for p in peer_connections: # peer array returned by tracker
+        print ("Peer: {0} (ip addr: {1})".format(p.pid, p.ip)) #
 if __name__=="__main__":
     main()
