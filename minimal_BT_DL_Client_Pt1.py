@@ -30,6 +30,7 @@ import math         # you'll need to use the ceil function in a few places
 import sys
 import re
 from string import ascii_letters, digits
+import urllib
 
 ALPHANUM    = ascii_letters + digits
 INTERESTED  = b'\x00\x00\x00\x01\x02'
@@ -107,18 +108,22 @@ def tracker_req(btdata, info_hash):
     # https://wiki.theory.org/BitTorrentSpecification#Tracker_HTTP.2FHTTPS_Protocol
 
     # peer_id = urlencoded 20 byte string
-    peer_id = 'dummy_value'
+    # peer_id = 'dummy_value'
+    # peer_id = "-ello-dsdad-012345678901"
     uploaded = 0
     # left = total_length_bytes - total_bytes_gotten
     left = btdata['info']['length']/8 - total_bytes_gotten
 
-    reqParams = {'info_hash':info_hash, 'peer_id':peer_id, 'port': local_port, 'uploaded':uploaded, 'downloaded':total_bytes_gotten, 'left': left} #
+    reqParams = {'info_hash':info_hash, 'peer_id':peer_id, 'port': local_port, 'uploaded':uploaded, 'downloaded':total_bytes_gotten, 'left': left, 'compact':0, 'event':""} #
+
 
     # use the requests library to send an HTTP GET request to the tracker
     response = requests.get('http://www.something.com', params=reqParams)
+    response = requests.get(btdata['announce'], params=reqParams)
 
+    print('response : ', response)
     print('response text :', response.text)
-    print('response :', dir(response))
+    print('response directory :', dir(response))
     print('response content :', response.content)
 
 
