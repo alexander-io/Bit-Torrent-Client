@@ -55,6 +55,8 @@ total_length_bytes  = 0
 done                = False # Are we done yet?
 torrent_url         = ''
 announce_url        = ''
+# variable used to store the global bencodepy decoded ordered dict
+btdata_backup       = None
 
 
 def main():
@@ -131,6 +133,8 @@ def get_info_hash(btdata):
     # into bencode, then encrypt it with SHA1 using the
     # hashlib library and generate a digest.
 
+    print("\n\n::::::btdata backup  : \n\n", btdata_backup, "\n\n")
+
     print('\nTODO :  re-encode to bencode, encrypt data using SHA1 (use hashlib to generate digest)')
     btdata['info'] = bencodepy.encode(btdata['info'])
 
@@ -150,6 +154,13 @@ def get_data_from_torrent(arg):
 
         # call the decode_from_file() function that's a member of the bencodepy class`
         btdata = bencodepy.decode_from_file(file_path)
+
+        # store the fresh, bencodepy decoded data in the global scope
+        global btdata_backup
+        btdata_backup = btdata
+
+        # XXX test print XXX
+        # print("\n\n::::::btdata backup  : \n\n", btdata_backup, "\n\n")
 
         # next, build the decoded dictionary through a series of iterative statements within the btdata OrderedDict object
         # the "builder" variable used for this we'll call decoded_dict
