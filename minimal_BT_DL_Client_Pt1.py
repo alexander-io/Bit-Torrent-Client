@@ -55,8 +55,9 @@ total_length_bytes  = 0
 done                = False # Are we done yet?
 torrent_url         = ''
 announce_url        = ''
-# variable used to store the global bencodepy decoded ordered dict
+# variable used to store the global bencodepy decoded ordered dict & info
 btdata_backup       = None
+btdata_info_backup  = None
 
 
 def main():
@@ -133,7 +134,9 @@ def get_info_hash(btdata):
     # into bencode, then encrypt it with SHA1 using the
     # hashlib library and generate a digest.
 
+    # XXX test print XXX
     print("\n\n::::::btdata backup  : \n\n", btdata_backup, "\n\n")
+    print("\n\n::::::INFO btdata backup  : \n\n", btdata_info_backup, "\n\n")
 
     print('\nTODO :  re-encode to bencode, encrypt data using SHA1 (use hashlib to generate digest)')
     btdata['info'] = bencodepy.encode(btdata['info'])
@@ -158,6 +161,7 @@ def get_data_from_torrent(arg):
         # store the fresh, bencodepy decoded data in the global scope
         global btdata_backup
         btdata_backup = btdata
+        # btdata_info_backup =
 
         # XXX test print XXX
         # print("\n\n::::::btdata backup  : \n\n", btdata_backup, "\n\n")
@@ -189,6 +193,11 @@ def get_data_from_torrent(arg):
         for x, member in enumerate(decoded_dict['announce-list']):
             for y, member in enumerate(decoded_dict['announce-list'][x]):
                 decoded_dict['announce-list'][x][y] = decoded_dict['announce-list'][x][y].decode('UTF-8')
+
+
+        # store freshly bencodepy decoded info-ordered-dictionary
+        global btdata_info_backup
+        btdata_info_backup = decoded_dict['info']
 
         # decode the (sub)ordered-dictionary that exists as a value corresponding to the 'info' key inside the decoded_dict dictionary
         # access this (sub)ordered-dictionary with : decoded_dict['info']
