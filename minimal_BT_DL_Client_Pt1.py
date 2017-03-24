@@ -94,12 +94,14 @@ class PeerConnection:
         self.pid = pid
         # self.id = id
 
+# this function is used to make a request to the remote tracker server.
+# the tracer server listens for a request of a given torrent
+# if the tracker has a record for the torrent,
+# then the tracker will respond with a "map" of peers that have the desired
+# torrent "pieces" available
+# note, if parameters are sent to the script via an HTTP GET request (a question mark appended to the URL, followed by param=value pairs; in the example, ?and=a&query=string)
+# example, ?and=a&query=string
 def tracker_req(btdata, info_hash):
-
-    # If parameters are sent to the script via an HTTP GET request (a question mark appended to the URL, followed by param=value pairs; in the example, ?and=a&query=string)
-    # example, ?and=a&query=string
-    url_builder = btdata['announce']
-    url_builder += '?'
 
 
     # XXX test print XXX
@@ -109,28 +111,27 @@ def tracker_req(btdata, info_hash):
     # The parameters are then added to this URL, using standard CGI methods (i.e. a '?' after the announce URL, followed by 'param=value' sequences separated by '&').
     # https://wiki.theory.org/BitTorrentSpecification#Tracker_HTTP.2FHTTPS_Protocol
 
-    # peer_id = urlencoded 20 byte string
-    # peer_id = 'dummy_value'
-    # peer_id = "-ello-dsdad-012345678901"
+    # the uploaded request parameter is used to indicate the number of bytes that have been
+    # uploaded to the server,
     uploaded = 0
+
     # left = total_length_bytes - total_bytes_gotten
     left = btdata['info']['length']/8 - total_bytes_gotten
 
     reqParams = {'info_hash':info_hash, 'peer_id':peer_id, 'port': local_port, 'uploaded':uploaded, 'downloaded':total_bytes_gotten, 'left': left, 'compact':0, 'event':""} #
 
-
     # use the requests library to send an HTTP GET request to the tracker
-    response = requests.get('http://www.something.com', params=reqParams)
     response = requests.get(btdata['announce'], params=reqParams)
-
 
     print('response : ', response)
     print('response text :', response.text)
     print('response directory :', dir(response))
     print('response content :', response.content)
 
+    # decode response text with bencodepy library.
     decoded_response_content = bencodepy.decode(response.content)
 
+    # XXX test print XXX
     print('\nbencodepy.decoded response content', decoded_response_content)
 
     decoded_dict = {}
@@ -150,7 +151,7 @@ def tracker_req(btdata, info_hash):
 
     print('\ndecoded dict : ', decoded_dict)
 
-    appendage_dict = {}
+
     # decode the array elements that exist as the value for the 'url-list' key in the decoded_dict
     for x, member in enumerate(decoded_dict['peers']):
         # peer_builder = {'ip':"", 'port':""}
@@ -169,6 +170,13 @@ def tracker_req(btdata, info_hash):
             peer_builder[i] = j
 
             print(x,i,j)
+
+        # TODO :
+        # need to decode the peer_id values that are returned in the tracker's response :
+        # decode_pid = bencodepy.decode(peer_builder['peer id'])
+
+        # XXX test print XXX
+        # print(decode_pid)
 
         # peer_connections.append(PeerConnection(peer_builder['ip'], peer_builder['port']), 'tmp-id')
         peer_connections.append(PeerConnection(peer_builder['ip'], peer_builder['port'], peer_builder['peer id']))
@@ -204,33 +212,19 @@ def tracker_req(btdata, info_hash):
     # https://github.com/eweast/BencodePy
     # read the response in and decode it with bencodepy's decode function
 
-    # Once you've got the dictionary parsed as "tracker_data" you can
-    # print out the tracker request report:
+    # Once you've got the dictionary parsed as "tracker_data" print out the tracker request report:
     report_tracker()
-
-    # And construct an array of peer connection objects:
-    # for p in # the array of peers you got from the tracekr
-    #     peer_connections.append(PeerConnection(#
 
 # the purpose of this is to produce the info_hash variable, which is requisite in the
 # request for the tracker server
 def get_info_hash(btdata):
     # https://docs.python.org/3/library/hashlib.html
-    # print('get_info_hash() btdata : ', btdata)
-    # for x in btdata:
-    #     print(x)
-
-    # TODO :
-    # You'll need to get the info directory, re-encode it
-    # into bencode, then encrypt it with SHA1 using the
-    # hashlib library and generate a digest.
+    # get the info directory, re-encode it into bencode, then encrypt it with
+    # SHA1 using the hashlib library and generate a digest.
 
     # XXX test print XXX
-    print("\n\n::::::btdata backup  : \n\n", btdata_backup, "\n\n")
-    print("\n\n::::::INFO btdata backup  : \n\n", btdata_info_backup, "\n\n")
-
-
-
+    # print("\n\n::::::btdata backup  : \n\n", btdata_backup, "\n\n")
+    # print("\n\n::::::INFO btdata backup  : \n\n", btdata_info_backup, "\n\n")
 
     # XXX test print XXX
     # print('re-encoded : ', btdata['info'])
@@ -252,10 +246,10 @@ def get_info_hash(btdata):
     return digest_builder
 
 def get_data_from_torrent(arg):
+    # https://github.com/eweast/BencodePy
     # try to parse and decode the torrent file...
     try:
-        # Read about decoding from a file here:
-        # https://github.com/eweast/BencodePy
+
         # assign file_path based on the command line arg/param
         file_path = arg
 
@@ -375,8 +369,6 @@ def report_torrent(torrent_data):
     # Nothing special here, just reporting the data from
     # the torrent. Note the Python 3 format syntax
 
-    # XXX remove when finished XXX
-    dummy_value = "DUMMY VALUE"
     # assume that the number of files in the torrent is "one"
     no_of_files = "one"
 
