@@ -120,7 +120,17 @@ def tracker_req(btdata, info_hash):
     # left = total_length_bytes - total_bytes_gotten
     left = btdata['info']['length']/8 - total_bytes_gotten
 
-
+    for x,y in btdata.items():
+        # print(x,y)
+        x = x.decode('UTF-8')
+        # try to decode the value associated with the key...
+        try:
+            y = y.decode('UTF-8')
+        except AttributeError:
+            # if we can't decode the value, just pass it for now
+            pass
+        decoded_dict[x] = y
+        
     # use the requests library to send an HTTP GET request to the tracker
     response = requests.get(btdata['announce'], params=reqParams)
 
@@ -129,7 +139,7 @@ def tracker_req(btdata, info_hash):
     # print('response text :', response.text)
     # print('response directory :', dir(response))
     # print('response content :', response.content)
-    
+
     # XXX test print XXX
     # print(peer_connections)
 
