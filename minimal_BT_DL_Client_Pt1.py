@@ -32,6 +32,7 @@ import re
 from string import ascii_letters, digits
 import urllib
 
+
 ALPHANUM    = ascii_letters + digits
 INTERESTED  = b'\x00\x00\x00\x01\x02'
 
@@ -59,6 +60,7 @@ announce_url        = ''
 # variable used to store the global bencodepy decoded ordered dict & info
 btdata_backup       = None
 btdata_info_backup  = None
+
 
 
 def main():
@@ -123,6 +125,7 @@ def tracker_req(btdata, info_hash):
     # use the requests library to send an HTTP GET request to the tracker
     response = requests.get(btdata['announce'], params=reqParams)
 
+    # XXX test print XXX
     print('response : ', response)
     print('response text :', response.text)
     print('response directory :', dir(response))
@@ -134,6 +137,7 @@ def tracker_req(btdata, info_hash):
     # XXX test print XXX
     print('\nbencodepy.decoded response content', decoded_response_content)
 
+    # decoded_dict builder for housing the decoded-data that makes up the repsonse dictionary
     decoded_dict = {}
 
     # for each of the key:value pairs in the OrderedDict, try to decode both the key and the value
@@ -152,61 +156,16 @@ def tracker_req(btdata, info_hash):
     print('\ndecoded dict : ', decoded_dict)
 
 
-    # decode the array elements that exist as the value for the 'url-list' key in the decoded_dict
-    for x, member in enumerate(decoded_dict['peers']):
-        # peer_builder = {'ip':"", 'port':""}
-        peer_builder = {}
-        # print('\npeer dict : ', decoded_dict['peers'][x])
-        for i,j in decoded_dict['peers'][x].items():
-            # print(x,i,j)
-            i = i.decode('UTF-8')
-            if isinstance(j, int):
-                pass
-            elif 'peer' not in i:
-                j = j.decode('UTF-8')
-            else :
-                pass
-
-            peer_builder[i] = j
-
-            print(x,i,j)
-
         # TODO :
         # need to decode the peer_id values that are returned in the tracker's response :
-        # decode_pid = bencodepy.decode(peer_builder['peer id'])
-
+    
         # XXX test print XXX
         # print(decode_pid)
 
-        # peer_connections.append(PeerConnection(peer_builder['ip'], peer_builder['port']), 'tmp-id')
-        peer_connections.append(PeerConnection(peer_builder['ip'], peer_builder['port'], peer_builder['peer id']))
+    # XXX test print XXX
+    # print(peer_connections)
 
-    print(peer_connections)
-
-            # appendage_dict[]
-            # i = i.decode('UTF-8')
-            # # try to decode the value associated with the key...
-            # try:
-            #     j = j.decode('UTF-8')
-            # except AttributeError:
-            #     # if we can't decode the value, just pass it for now
-            #     pass
-            # appendage_dict[i] = j
-            # print(decoded_dict['peers'][x][i])
-            # peer_ip = decoded_dict['peers'][x][i].decode
-            # i = i.decode('UTF-8')
-            # # try to decode the value associated with the key...
-            # try:
-            #     j = j.decode('UTF-8')
-            # except AttributeError:
-            #     # if we can't decode the value, just pass it for now
-            #     pass
-            # decoded_dict['peers'][x][i] = j
-            # print('peer dict : ', decoded_dict['peers'][x])
-        # decoded_dict['url-list'][x] = decoded_dict['url-list'][x].decode('UTF-8')
-
-    # The tracker responds with "text/plain" document consisting of a
-    # bencoded dictionary
+    # The tracker responds with "text/plain" document consisting of a bencoded dictionary
 
     # bencodepy is a library for parsing bencoded data:
     # https://github.com/eweast/BencodePy
