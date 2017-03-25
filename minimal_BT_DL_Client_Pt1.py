@@ -105,52 +105,31 @@ class PeerConnection:
 # example, ?and=a&query=string
 def tracker_req(btdata, info_hash):
 
+    # Declare any necessary globals
 
-    # XXX test print XXX
-    # print('\n\nannounce url ::', btdata['announce'])
-
-    # Build the params object. Read the bittorrent specs for tracker querying.
-    # The parameters are then added to this URL, using standard CGI methods (i.e. a '?' after the announce URL, followed by 'param=value' sequences separated by '&').
+    # Build the params object. Read the bittorrent specs for
+    # tracker querying.
     # https://wiki.theory.org/BitTorrentSpecification#Tracker_HTTP.2FHTTPS_Protocol
+    reqParams = { #
 
-    # the uploaded request parameter is used to indicate the number of bytes that have been
-    # uploaded to the server,
-    uploaded = 0
+    # use the requests library to send an HTTP GET request to
+    # the tracker
+    res = requests.get(# http://docs.python-requests.org/en/master/
 
-    # left = total_length_bytes - total_bytes_gotten
-    left = btdata['info']['length']/8 - total_bytes_gotten
-
-    for x,y in btdata.items():
-        # print(x,y)
-        x = x.decode('UTF-8')
-        # try to decode the value associated with the key...
-        try:
-            y = y.decode('UTF-8')
-        except AttributeError:
-            # if we can't decode the value, just pass it for now
-            pass
-        decoded_dict[x] = y
-        
-    # use the requests library to send an HTTP GET request to the tracker
-    response = requests.get(btdata['announce'], params=reqParams)
-
-    # XXX test print XXX
-    # print('response : ', response)
-    # print('response text :', response.text)
-    # print('response directory :', dir(response))
-    # print('response content :', response.content)
-
-    # XXX test print XXX
-    # print(peer_connections)
-
-    # The tracker responds with "text/plain" document consisting of a bencoded dictionary
+    # The tracker responds with "text/plain" document consisting of a
+    # bencoded dictionary
 
     # bencodepy is a library for parsing bencoded data:
     # https://github.com/eweast/BencodePy
     # read the response in and decode it with bencodepy's decode function
 
-    # Once you've got the dictionary parsed as "tracker_data" print out the tracker request report:
-    report_tracker()
+    # Once you've got the dictionary parsed as "tracker_data" you can
+    # print out the tracker request report:
+    report_tracker(tracker_data)
+
+    # And construct an array of peer connection objects:
+    for p in # the array of peers you got from the tracekr
+        peer_connections.append(PeerConnection(# 
 
 # the purpose of this is to produce the info_hash variable, which is requisite in the
 # request for the tracker server
