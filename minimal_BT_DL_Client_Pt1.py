@@ -106,15 +106,12 @@ class PeerConnection:
 def tracker_req(btdata, info_hash):
 
     # Declare any necessary globals
-
-    # Build the params object. Read the bittorrent specs for
-    # tracker querying.
+    # Build the params object. Read the bittorrent specs for tracker querying
     # https://wiki.theory.org/BitTorrentSpecification#Tracker_HTTP.2FHTTPS_Protocol
-    reqParams = { #
+    reqParams = {}
 
-    # use the requests library to send an HTTP GET request to
-    # the tracker
-    res = requests.get(# http://docs.python-requests.org/en/master/
+    # use the requests library to send an HTTP GET request to the tracker
+    res = requests.get() # http://docs.python-requests.org/en/master/
 
     # The tracker responds with "text/plain" document consisting of a
     # bencoded dictionary
@@ -128,8 +125,8 @@ def tracker_req(btdata, info_hash):
     report_tracker(tracker_data)
 
     # And construct an array of peer connection objects:
-    for p in # the array of peers you got from the tracekr
-        peer_connections.append(PeerConnection(# 
+    # for p in # the array of peers you got from the tracekr
+        # peer_connections.append(PeerConnection(#
 
 # the purpose of this is to produce the info_hash variable, which is requisite in the
 # request for the tracker server
