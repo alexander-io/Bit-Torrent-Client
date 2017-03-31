@@ -45,7 +45,7 @@ peer_connections    = [] # An array of PeerConnection objects
 total_length        = 0 # Total length of the file being downlaoded
 no_of_pieces        = 0 # Number of pieces the file's divided into
 piece_length        = 0 # Size of each piece
-piece_length_bytes  = 0
+piece_length_bytes  = 0 
 i_have              = None # A bitarray representing which pieces we have
 file_array          = [] # An array of pieces (binary sequences)
 req_block_size_int  = 16384 # Recommended size for requesting blocks of data
@@ -106,27 +106,57 @@ class PeerConnection:
 def tracker_req(btdata, info_hash):
 
     # Declare any necessary globals
+    #b'info' has the info....
     # Build the params object. Read the bittorrent specs for tracker querying
     # https://wiki.theory.org/BitTorrentSpecification#Tracker_HTTP.2FHTTPS_Protocol
-    reqParams = {}
-
+    info = btdata['info']
+    total_length_bytes = info['length']
+    left = total_length_bytes - total_bytes_gotten
+    reqParams = {'info_hash':info_hash, 'peer_id':peer_id, 'port':local_port, 'uploaded':0, 'downloaded':total_bytes_gotten, 'left':left, 'compact':1}
+    print("\nprinting btdata:\n")
+    print(btdata)
+    print("\nprinting info_hash:\n")
+    print(info_hash)
     # use the requests library to send an HTTP GET request to the tracker
-    res = requests.get() # http://docs.python-requests.org/en/master/
-
+    # http://docs.python-requests.org/en/master/
+    print(btdata['announce'])
+    res = requests.get(btdata['announce'], params=reqParams) 
+    #test print
+    print(res.__class__)
+    #newres = res.encode('latin-1')
+    #bencodepy will decode encoded data in bytes format
+    #the web server sends you ASCII
+    #take that ASCII and encode it to bytes
+    #call encode on the text file returned from the server. 
+    # then you can decode it
+    print("\nprinting res.url:\n")
+    print(res.url)
+    print("\n")
+    print("\nprinting res.text:\n")
+    print(res.text)
+    newres = res.text
+    newres = newres.encode('latin-1')
+    #print("\nprinting text:\n")
+    #text = json.loads(res.text)
+    #print(text)
+    #print("\n just tried to print res.text")
     # The tracker responds with "text/plain" document consisting of a
     # bencoded dictionary
-
     # bencodepy is a library for parsing bencoded data:
     # https://github.com/eweast/BencodePy
     # read the response in and decode it with bencodepy's decode function
-
+    #newres = res.read()
+    #print(newres)
+    tracker_data = bencodepy.decode(res)
+    print(tracker_data) #this tracker data should be a list of peers
     # Once you've got the dictionary parsed as "tracker_data" you can
     # print out the tracker request report:
-    report_tracker(tracker_data)
-
+    req_report = report_tracker(tracker_data)
+    print(req_report)
     # And construct an array of peer connection objects:
-    # for p in # the array of peers you got from the tracekr
-        # peer_connections.append(PeerConnection(#
+    # for p in # the array of peers you got from the tracker
+    #for p in 
+   #     peer_connections.append(PeerConnection(
 
 # the purpose of this is to produce the info_hash variable, which is requisite in the
 # request for the tracker server
