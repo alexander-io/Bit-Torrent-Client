@@ -114,29 +114,18 @@ def tracker_req(btdata, info_hash):
     total_length_bytes = info['length']
     left = total_length_bytes - total_bytes_gotten
     reqParams = {'info_hash':info_hash, 'peer_id':peer_id, 'port':local_port, 'uploaded':0, 'downloaded':total_bytes_gotten, 'left':left, 'compact':1}
-    print("\nprinting btdata:\n")
-    print(btdata)
-    print("\nprinting info_hash:\n")
-    print(info_hash)
+
     # use the requests library to send an HTTP GET request to the tracker
     # http://docs.python-requests.org/en/master/
     print(btdata['announce'])
     res = requests.get(btdata['announce'], params=reqParams) 
-    #test print
-    print(res.__class__)
-    #newres = res.encode('latin-1')
     #bencodepy will decode encoded data in bytes format
     #the web server sends you ASCII
     #take that ASCII and encode it to bytes
     #call encode on the text file returned from the server. 
     # then you can decode it
-    print("\nprinting res.url:\n")
-    print(res.url)
-    print("\n")
-    print("\nprinting res.text:\n")
     newres = res.text
     newres = newres.encode('latin-1')
-    print(newres)
     #print("\nprinting text:\n")
     #text = json.loads(res.text)
     #print(text)
@@ -146,33 +135,27 @@ def tracker_req(btdata, info_hash):
     # bencodepy is a library for parsing bencoded data:
     # https://github.com/eweast/BencodePy
     # read the response in and decode it with bencodepy's decode function
-    #newres = res.read()
-    #print(newres)
     tracker_data = bencodepy.decode(newres)
-    print("\nprinting tracker_data:\n")
-    print(tracker_data) #this tracker data should be a list of peers
-    print("\nprinting tracker_data[b'interval']:\n")
-    print(tracker_data[b'interval'])
-    print("\nprinting tracker_data[b'peers']:\n")
-    print(tracker_data[b'peers'])
+    #  XXX test print XXX
+    ###print("\nprinting tracker_data:\n")
+    ###print(tracker_data) #this tracker data should be a list of peers
+    ###print("\nprinting tracker_data[b'interval']:\n")
+    ###print(tracker_data[b'interval'])
+    ###print("\nprinting tracker_data[b'peers']:\n")
+    ###print(tracker_data[b'peers'])
+    ###print("\nprinting btdata:\n")
+    ###print(btdata)
+    ###print("\nprinting info_hash:\n")
+    ###print(info_hash)
     listpeers = tracker_data[b'peers']
-    #print("\n" + listpeers[1])
-    i = 0
-    print("\n")
-    for odict in listpeers:
-        print("Peer # " + str(i))
-        for key, value in odict.items():
-            print(key, value)
-        i = i + 1
-        print("\n")
+
     # Once you've got the dictionary parsed as "tracker_data" you can
     # print out the tracker request report:
-    req_report = report_tracker(tracker_data)
-    print(req_report)
+    report_tracker(tracker_data)
     # And construct an array of peer connection objects:
     # for p in # the array of peers you got from the tracker
-    #for p in 
-   #     peer_connections.append(PeerConnection(
+    for p in listpeers:
+        peer_connections.append(p)
 
 # the purpose of this is to produce the info_hash variable, which is requisite in the
 # request for the tracker server
@@ -192,7 +175,7 @@ def get_info_hash(btdata):
     encoded_info_dictionary = bencodepy.encode(btdata_info_backup)
 
     # XXX test print XXX
-    print('encoded info dictionary : ', encoded_info_dictionary)
+    ###print('encoded info dictionary : ', encoded_info_dictionary)
 
     # encrypt the encoded_info_dictionary using sha1 & generate sha1 hash digest
     digest_builder = hashlib.sha1()
@@ -200,7 +183,7 @@ def get_info_hash(btdata):
     digest_builder = digest_builder.digest()
 
     # XXX test print XXX
-    # print('digest builder : ', digest_builder,'\n\n')
+    # print('digest builder : , digest_builder,'\n\n')
 
     return digest_builder
 
@@ -344,8 +327,19 @@ def report_torrent(torrent_data):
 
 
 def report_tracker(trackdata):
-    print('test print')
-    for p in peer_connections: # peer array returned by tracker
-        print ("Peer: {0} (ip addr: {1})".format(p.pid, p.ip)) #
+    listpeers1 = trackdata[b'peers']
+    print("\n")
+    for odict in listpeers1:
+        for key, value in odict.items():
+            dkey = key.decode('latin-1')
+            if dkey=="ip":
+                dIpval = value.decode('latin-1')
+            elif dkey=="peer id":
+                try:
+                    dPidval = value.decode('latin-1')
+                except:
+                    pass
+        print("Peer: " + dPidval + " (ip addr: " + dIpval + ")")
+
 if __name__=="__main__":
     main()
