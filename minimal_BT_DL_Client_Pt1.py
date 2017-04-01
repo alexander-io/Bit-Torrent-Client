@@ -60,6 +60,7 @@ announce_url        = ''
 # variable used to store the global bencodepy decoded ordered dict & info
 btdata_backup       = None
 btdata_info_backup  = None
+#listpeers = []
 
 
 
@@ -133,9 +134,9 @@ def tracker_req(btdata, info_hash):
     print(res.url)
     print("\n")
     print("\nprinting res.text:\n")
-    print(res.text)
     newres = res.text
     newres = newres.encode('latin-1')
+    print(newres)
     #print("\nprinting text:\n")
     #text = json.loads(res.text)
     #print(text)
@@ -147,8 +148,23 @@ def tracker_req(btdata, info_hash):
     # read the response in and decode it with bencodepy's decode function
     #newres = res.read()
     #print(newres)
-    tracker_data = bencodepy.decode(res)
+    tracker_data = bencodepy.decode(newres)
+    print("\nprinting tracker_data:\n")
     print(tracker_data) #this tracker data should be a list of peers
+    print("\nprinting tracker_data[b'interval']:\n")
+    print(tracker_data[b'interval'])
+    print("\nprinting tracker_data[b'peers']:\n")
+    print(tracker_data[b'peers'])
+    listpeers = tracker_data[b'peers']
+    #print("\n" + listpeers[1])
+    i = 0
+    print("\n")
+    for odict in listpeers:
+        print("Peer # " + str(i))
+        for key, value in odict.items():
+            print(key, value)
+        i = i + 1
+        print("\n")
     # Once you've got the dictionary parsed as "tracker_data" you can
     # print out the tracker request report:
     req_report = report_tracker(tracker_data)
@@ -327,7 +343,7 @@ def report_torrent(torrent_data):
     print("Number of pieces: {0}".format(torrent_data.no_of_pieces))
 
 
-def report_tracker():
+def report_tracker(trackdata):
     print('test print')
     for p in peer_connections: # peer array returned by tracker
         print ("Peer: {0} (ip addr: {1})".format(p.pid, p.ip)) #
