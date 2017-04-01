@@ -126,9 +126,7 @@ def tracker_req(btdata, info_hash):
     # then you can decode it
     newres = res.text
     newres = newres.encode('latin-1')
-    #print("\nprinting text:\n")
-    #text = json.loads(res.text)
-    #print(text)
+    print(newres)
     #print("\n just tried to print res.text")
     # The tracker responds with "text/plain" document consisting of a
     # bencoded dictionary
@@ -137,8 +135,8 @@ def tracker_req(btdata, info_hash):
     # read the response in and decode it with bencodepy's decode function
     tracker_data = bencodepy.decode(newres)
     #  XXX test print XXX
-    ###print("\nprinting tracker_data:\n")
-    ###print(tracker_data) #this tracker data should be a list of peers
+    print("\nprinting tracker_data:\n")
+    print(tracker_data) #this tracker data should be a list of peers
     ###print("\nprinting tracker_data[b'interval']:\n")
     ###print(tracker_data[b'interval'])
     ###print("\nprinting tracker_data[b'peers']:\n")
@@ -338,7 +336,7 @@ def report_tracker(trackdata):
                 try:
                     dPidval = value.decode('latin-1')
                 except:
-                    pass
+                    dPidval = bencodepy.decode(value)
         print("Peer: " + dPidval + " (ip addr: " + dIpval + ")")
 
 if __name__=="__main__":
